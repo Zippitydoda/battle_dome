@@ -12,10 +12,6 @@ class Warrior:
     }
     # Weapons list
     ALL_WEAPONS = list(WEAPONS_BONUS.values())
-    # Bool if Warrior has a weapons bonus
-    has_weapon_bonus = False
-    # Users win loss record
-    player_record = {"win": 0, "draw": 0, "lose": 0}
 
     def __init__(self, type):
         """
@@ -27,6 +23,10 @@ class Warrior:
         """
         self.type = type.lower()
         self.weapon = random.choice(self.ALL_WEAPONS)
+        # Users win loss record
+        self.player_record = {"win": 0, "draw": 0, "lose": 0}
+        # Bool if Warrior has a weapons bonus
+        self.has_weapon_bonus = False
 
         if self.WEAPONS_BONUS.get(self.type) == self.weapon:
             self.has_weapon_bonus = True
@@ -35,7 +35,7 @@ class Warrior:
         # Raise a TypeError if the opponent object is not of the Warrior class
         if not isinstance(opponent, Warrior):
 
-            raise TypeError
+            raise TypeError("Opponent must be a Warrior instance.")
 
         TYPE_LIST = list(self.WEAPONS_BONUS.keys())
 
@@ -114,19 +114,3 @@ class Warrior:
     # Update the players record with win, lose, or draw.
     def update_record(self, outcome: str):
         self.player_record[outcome] += 1
-
-
-# ------------------------------------------------------------
-
-"""user = Warrior("ranger")
-opponent = Warrior("ranger")
-
-user.has_weapon_bonus = False
-opponent.has_weapon_bonus = False
-user.weapon = "magic wand"
-opponent.weapon = "sword"
-print(
-    f"\nYour warrior is a {user.type} and is equiped with {user.weapon}.\n"
-    f"You will be fighting a {opponent.type} equiped with {opponent.weapon}.\n"
-)
-print(user.match_up(opponent))"""
