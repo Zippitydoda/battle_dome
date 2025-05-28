@@ -103,7 +103,7 @@ def psychic_with_bonus():
 
 
 #temp test
-def test_basic_type_win(psychic_no_bonus, rouge_no_bonus):
+def test_basic_type_win2(psychic_no_bonus, rouge_no_bonus):
     # Knight (self) vs Ranger (opponent) -> Knight wins
     assert psychic_no_bonus.match_up(rouge_no_bonus) == "lose"
 
