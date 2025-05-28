@@ -101,6 +101,13 @@ def psychic_with_bonus():
     return war
 
 
+
+#temp test
+def test_basic_type_win(psychic_no_bonus, rouge_no_bonus):
+    # Knight (self) vs Ranger (opponent) -> Knight wins
+    assert psychic_no_bonus.match_up(rouge_no_bonus) == "lose"
+
+    
 # Test cases for basic type advantages (no weapon bonuses involved initially)
 def test_basic_type_win(knight_no_bonus, ranger_no_bonus):
     # Knight (self) vs Ranger (opponent) -> Knight wins
