@@ -5,7 +5,7 @@
 import pytest
 from Warrior import Warrior
 
-
+#Knight 
 @pytest.fixture
 def knight_no_bonus():
     war = Warrior("knight")
@@ -21,7 +21,7 @@ def knight_with_bonus():
     war.has_weapon_bonus = True
     return war
 
-
+#Ranger
 @pytest.fixture
 def ranger_no_bonus():
     war = Warrior("ranger")
@@ -37,7 +37,7 @@ def ranger_with_bonus():
     war.has_weapon_bonus = True
     return war
 
-
+#Wizard
 @pytest.fixture
 def wizard_no_bonus():
     war = Warrior("wizard")
@@ -50,6 +50,53 @@ def wizard_no_bonus():
 def wizard_with_bonus():
     war = Warrior("wizard")
     war.weapon = "magic wand"
+    war.has_weapon_bonus = True
+    return war
+
+#Bard
+@pytest.fixture
+def bard_no_bonus():
+    war = Warrior("bard")
+    war.weapon = "sword"
+    war.has_weapon_bonus = False
+    return war
+
+
+@pytest.fixture
+def bard_with_bonus():
+    war = Warrior("bard")
+    war.weapon = "lute"
+    war.has_weapon_bonus = True
+    return war
+#Rouge
+@pytest.fixture
+def rouge_no_bonus():
+    war = Warrior("rouge")
+    war.weapon = "sword"
+    war.has_weapon_bonus = False
+    return war
+
+
+@pytest.fixture
+def rouge_with_bonus():
+    war = Warrior("rouge")
+    war.weapon = "dagger"
+    war.has_weapon_bonus = True
+    return war
+
+#Psychic
+@pytest.fixture
+def psychic_no_bonus():
+    war = Warrior("psychic")
+    war.weapon = "sword"
+    war.has_weapon_bonus = False
+    return war
+
+
+@pytest.fixture
+def psychic_with_bonus():
+    war = Warrior("psychic")
+    war.weapon = "crystal ball"
     war.has_weapon_bonus = True
     return war
 
