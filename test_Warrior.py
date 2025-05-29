@@ -5,7 +5,8 @@
 import pytest
 from Warrior import Warrior
 
-#Knight 
+
+# Knight
 @pytest.fixture
 def knight_no_bonus():
     war = Warrior("knight")
@@ -21,7 +22,8 @@ def knight_with_bonus():
     war.has_weapon_bonus = True
     return war
 
-#Ranger
+
+# Ranger
 @pytest.fixture
 def ranger_no_bonus():
     war = Warrior("ranger")
@@ -37,7 +39,8 @@ def ranger_with_bonus():
     war.has_weapon_bonus = True
     return war
 
-#Wizard
+
+# Wizard
 @pytest.fixture
 def wizard_no_bonus():
     war = Warrior("wizard")
@@ -53,7 +56,8 @@ def wizard_with_bonus():
     war.has_weapon_bonus = True
     return war
 
-#Bard
+
+# Bard
 @pytest.fixture
 def bard_no_bonus():
     war = Warrior("bard")
@@ -68,23 +72,26 @@ def bard_with_bonus():
     war.weapon = "lute"
     war.has_weapon_bonus = True
     return war
-#Rouge
+
+
+# Rogue
 @pytest.fixture
-def rouge_no_bonus():
-    war = Warrior("rouge")
+def rogue_no_bonus():
+    war = Warrior("rogue")
     war.weapon = "sword"
     war.has_weapon_bonus = False
     return war
 
 
 @pytest.fixture
-def rouge_with_bonus():
-    war = Warrior("rouge")
+def rogue_with_bonus():
+    war = Warrior("rogue")
     war.weapon = "dagger"
     war.has_weapon_bonus = True
     return war
 
-#Psychic
+
+# Psychic
 @pytest.fixture
 def psychic_no_bonus():
     war = Warrior("psychic")
@@ -101,30 +108,32 @@ def psychic_with_bonus():
     return war
 
 
+'''# temp test
+def test_basic_type_win1(knight_no_bonus, bard_no_bonus):
+    # Knight (self) vs Bard (opponent) -> Knight wins
+    assert knight_no_bonus.match_up(bard_no_bonus) == "win"
 
-#temp test
-def test_basic_type_win2(psychic_no_bonus, rouge_no_bonus):
-    # Knight (self) vs Ranger (opponent) -> Knight wins
-    assert psychic_no_bonus.match_up(rouge_no_bonus) == "lose"
+def test_basic_type_lose(knight_no_bonus, bard_no_bonus):
+    # Knight (self) vs Bard (opponent) -> Knight wins
+    assert knight_no_bonus.match_up(bard_no_bonus) == "win"'''
 
-    
+
 # Test cases for basic type advantages (no weapon bonuses involved initially)
-def test_basic_type_win(knight_no_bonus, ranger_no_bonus):
+def test_basic_type_win(knight_no_bonus, ranger_no_bonus, bard_no_bonus):
     # Knight (self) vs Ranger (opponent) -> Knight wins
     assert knight_no_bonus.match_up(ranger_no_bonus) == "win"
+    assert knight_no_bonus.match_up(bard_no_bonus) == "draw"
 
 
-def test_basic_type_lose(knight_no_bonus, wizard_no_bonus):
+def test_basic_type_lose(knight_no_bonus, wizard_no_bonus, psychic_no_bonus):
     # Knight (self) vs Wizard (opponent) -> Knight loses
     assert knight_no_bonus.match_up(wizard_no_bonus) == "lose"
+    assert knight_no_bonus.match_up(psychic_no_bonus) == "lose"
 
 
 def test_basic_type_draw(knight_no_bonus):
     # Knight (self) vs Knight (opponent) -> Draw
-    opponent_knight = Warrior("knight")
-    opponent_knight.weapon = "bow"
-    opponent_knight.has_weapon_bonus = False
-    assert knight_no_bonus.match_up(opponent_knight) == "draw"
+    assert knight_no_bonus.match_up(knight_no_bonus) == "draw"
 
 
 # Test cases for weapon bonus effects

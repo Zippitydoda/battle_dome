@@ -40,6 +40,7 @@ def main():
         outcome = user.match_up(opponent)
         # Update users win loss record
         user.update_record(outcome)
+        print(outcome)
         print(
             f"\nYour record is Wins: {user.player_record['win']} Draws: {user.player_record['draw']} Losses: {user.player_record['lose']}"
         )

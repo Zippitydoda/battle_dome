@@ -4,11 +4,14 @@ import random
 class Warrior:
     """Represents a warrior in the game, with a specific type and a randomly assigned weapon."""
 
-    # Weapons bonuses for respectice warrior types
+    # Weapons bonuses for respective warrior types
     WEAPONS_BONUS = {
         "knight": "sword",
         "ranger": "bow",
         "wizard": "magic wand",
+        "bard": "lute",
+        "rogue": "dagger",
+        "psychic": "crystal Ball",
     }
     # Weapons list
     ALL_WEAPONS = list(WEAPONS_BONUS.values())
@@ -40,8 +43,18 @@ class Warrior:
         TYPE_LIST = list(self.WEAPONS_BONUS.keys())
 
         user_victory_status = ""
-        user_battlenumb = TYPE_LIST.index(self.type)
-        opponent_battlenumb = TYPE_LIST.index(opponent.type)
+        # If the users battle number is > 3 then divide the number by 2
+        user_battlenumb = int(
+            TYPE_LIST.index(self.type) - 3
+            if TYPE_LIST.index(self.type) > 2
+            else TYPE_LIST.index(self.type)
+        )
+        # If the opponents battle number is > 2 then subtract the number by 2
+        opponent_battlenumb = int(
+            TYPE_LIST.index(opponent.type) - 3
+            if TYPE_LIST.index(opponent.type) > 2
+            else TYPE_LIST.index(opponent.type)
+        )
 
         wining_list = [
             user_battlenumb,
