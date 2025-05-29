@@ -123,7 +123,3 @@ class Warrior:
                     "Error: Unexpected outcome from victory function. Defaulting to draw."
                 )
                 return "draw"
-
-    # Update the players record with win, lose, or draw.
-    def update_record(self, outcome: str):
-        self.player_record[outcome] += 1

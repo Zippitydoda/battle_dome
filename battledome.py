@@ -39,10 +39,10 @@ def main():
         # Have the user and opponent battle
         outcome = user.match_up(opponent)
         # Update users win loss record
-        user.update_record(outcome)
+        update_record(outcome)
         print(outcome)
         print(
-            f"\nYour record is Wins: {user.player_record['win']} Draws: {user.player_record['draw']} Losses: {user.player_record['lose']}"
+            f"\nYour record is Wins: {player_record['win']} Draws: {player_record['draw']} Losses: {player_record['lose']}"
         )
 
         # Ask player if they want to play again
@@ -59,6 +59,11 @@ def main():
                     raise ValueError
             except ValueError:
                 print("Please enter only 'y' or 'n'")
+
+
+# Update the players record with win, lose, or draw.
+def update_record(outcome: str):
+    player_record[outcome] += 1
 
 
 if __name__ == "__main__":
