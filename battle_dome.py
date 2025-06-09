@@ -1,14 +1,15 @@
 import random
 from Warrior import Warrior
-
+from character_map import WARRIOR_LOGIC
 
 # List of warrior types
-TYPE_LIST = list(Warrior.WEAPONS_BONUS.keys())
+TYPE_LIST = tuple(WARRIOR_LOGIC.keys())
 # Users play record
 player_record = {"win": 0, "draw": 0, "lose": 0}
 
 
 def main():
+
     play_again = True
     while play_again:  # Outer loop for playing multiple rounds
 
@@ -37,10 +38,11 @@ def main():
         )
 
         # Have the user and opponent battle
-        outcome = user.match_up(opponent)
-        # Update users win loss record
-        update_record(outcome)
-        print(outcome)
+        outcome = user.base_battle_outcome(opponent)
+        last_chance_victory(outcome)
+        # Update the players record with win, lose, or draw.
+        player_record[outcome] += 1
+
         print(
             f"\nYour record is Wins: {player_record['win']} Draws: {player_record['draw']} Losses: {player_record['lose']}"
         )
@@ -61,9 +63,41 @@ def main():
                 print("Please enter only 'y' or 'n'")
 
 
-# Update the players record with win, lose, or draw.
-def update_record(outcome: str):
-    player_record[outcome] += 1
+def last_chance_victory(outcome):
+    # Generate a randomly selected number 1-10
+    holy_grail = random.randint(1, 10)
+    # Prompt the losser to guess a number
+    print(
+        r"""
+  .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.
+ (    )  (    )  (    )  (    )  (    )  (    )  (    )  (    )  (    )  (    )
+  \  /    \  /    \  /    \  /    \  /    \  /    \  /    \  /    \  /    \  /
+   \/      \/      \/      \/      \/      \/      \/      \/      \/      \/
+  _||_    _||_    _||_    _||_    _||_    _||_    _||_    _||_    _||_    _||_
+ (____)  (____)  (____)  (____)  (____)  (____)  (____)  (____)  (____)  (____)
+   1       2       3       4       5       6       7       8       9       10
+          """
+    )
+    match outcome:
+        case "win":
+            opponent_guess = random.randint(0, 11)
+            if opponent_guess == holy_grail:
+                return "lose"
+            else:
+                return "win"
+        case "lose":
+            if input("Pick any number between 0-10: ") == holy_grail:
+                return "win"
+            else:
+                return "lose"
+        # fix this later
+        case "draw":
+            opponent_guess = random.randint(0, 11)
+            user_guess = input("Pick any number between 0-10: ")
+
+            return "draw"
+    # If the loser picks the correct number over turn the loss
+    pass
 
 
 if __name__ == "__main__":
