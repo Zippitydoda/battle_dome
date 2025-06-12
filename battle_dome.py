@@ -1,6 +1,17 @@
 import random
-from Warrior import Warrior
 from character_map import WARRIOR_LOGIC
+from enum import Enum
+from Warrior import Warrior
+
+
+#Enum of outcome options
+class Outcome(Enum):
+    WIN = 1
+    LOSE = 2
+    DRAW = 3
+WIN = Outcome.WIN
+LOSE = Outcome.LOSE
+DRAW = Outcome.DRAW
 
 # List of warrior types
 TYPE_LIST = tuple(WARRIOR_LOGIC.keys())
@@ -21,7 +32,7 @@ def main():
                 Warrior_type:str = input(prompt_message)
 
                 if Warrior_type.strip().lower() in TYPE_LIST:
-                    user = Warrior(Warrior_type.strip().lower())
+                    user : Warrior = Warrior(Warrior_type.strip().lower())
                     break
                 else:
                     raise ValueError
@@ -98,7 +109,34 @@ def last_chance_victory(outcome):
             return "draw"
     # If the loser picks the correct number over turn the loss
     pass
+# Compare warriors to see what the type advantage is.
+def phase_1(user_warrior: Warrior, opponent_warrior:Warrior)-> Outcome:
+    # Type advanta
+    TYPE_ADDVANTAGE = {
+    warrior_type: details["type_addvatange"]
+    for warrior_type, details in WARRIOR_LOGIC.items()
+    }
+    
+    if opponent_warrior.type in TYPE_ADDVANTAGE.get(user_warrior.type):
+        outcome = WIN
 
+    elif user_warrior.type in TYPE_ADDVANTAGE.get(opponent_warrior.type):
 
+        outcome = LOSE
+    else:
+        outcome = DRAW
+    
+# Check for weapons vs armor bonus of the previous phases victor.
+def phase_2(user_warrior: Warrior, opponent_warrior:Warrior)-> Outcome:
+    pass
+# Check for the initial type advatage warrior weapons vs armor bonus.
+def phase_3(user_warrior: Warrior, opponent_warrior:Warrior)-> Outcome:
+    pass
+# Choose a holy grail to see if you are the chosen.
+def phase_4(outcome:Outcome)-> Outcome:
+    pass
+# Create a recapn of current events.
+def narative_generator(outcome: Outcome)-> str:
+    pass
 if __name__ == "__main__":
     main()
