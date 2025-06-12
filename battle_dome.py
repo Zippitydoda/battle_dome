@@ -5,20 +5,20 @@ from character_map import WARRIOR_LOGIC
 # List of warrior types
 TYPE_LIST = tuple(WARRIOR_LOGIC.keys())
 # Users play record
-player_record = {"win": 0, "draw": 0, "lose": 0}
+player_record : dict = {"win": 0, "draw": 0, "lose": 0}
 
 
 def main():
 
-    play_again = True
+    play_again:bool = True
     while play_again:  # Outer loop for playing multiple rounds
 
         while True:
             # Prompt the user to type in a valid Warrior Knight, Ranger, or a Wizard looping until a valid input has been selected.
             try:
 
-                prompt_message = f"\nChoose from: {', '.join(name.capitalize() for name in TYPE_LIST)}: "
-                Warrior_type = input(prompt_message)
+                prompt_message:str = f"\nChoose from: {', '.join(name.capitalize() for name in TYPE_LIST)}: "
+                Warrior_type:str = input(prompt_message)
 
                 if Warrior_type.strip().lower() in TYPE_LIST:
                     user = Warrior(Warrior_type.strip().lower())
@@ -29,7 +29,7 @@ def main():
                 print("\nPlease choose a valid Warrior")
 
         # Create a randomly generated Warrior
-        opponent = Warrior(random.choice(TYPE_LIST))
+        opponent: Warrior = Warrior(random.choice(TYPE_LIST))
 
         # Alert the user to what their match up will be
         print(
@@ -66,7 +66,7 @@ def main():
 def last_chance_victory(outcome):
     # Generate a randomly selected number 1-10
     holy_grail = random.randint(1, 10)
-    # Prompt the losser to guess a number
+    # Prompt the loser to guess a number
     print(
         r"""
   .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.

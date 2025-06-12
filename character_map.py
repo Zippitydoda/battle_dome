@@ -36,4 +36,10 @@ WARRIOR_LOGIC = {
         "armor_bonus": "Clairvoyant Shawl",
         "skill_bonus": "Clairvoyance",
     },
+    "naked man" : {
+        #TODO finish this char map
+        "type_addvatange": ("bard", "knight"),
+        "weapon_bonus": "peen",
+        "armor_bonus": "Nudity",
+        "skill_bonus": "The naked man",}
 }
