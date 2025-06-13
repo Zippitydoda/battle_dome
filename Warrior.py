@@ -1,9 +1,10 @@
 from character_map import WARRIOR_LOGIC
+from enum import Enum
 import random
 
-# Type advantages for warriors
-TYPE_ADDVANTAGE = {
-    warrior_type: details["type_addvatange"]
+# Type addvantages for warriors
+TYPE_ADVANTAGE = {
+    warrior_type: details["type_advantage"]
     for warrior_type, details in WARRIOR_LOGIC.items()
 }
 # Weapons bonuses for respective warrior types
@@ -22,6 +23,14 @@ SKILL_BONUS = {
     warrior_type: details["skill_bonus"]
     for warrior_type, details in WARRIOR_LOGIC.items()
 }
+
+
+# Bonus Constants for Weapons and Armors
+class Bonus(Enum):
+    HIGH_BONUS = 3
+    MEDIUM_BONUS = 2
+    LOW_BONUS = 1
+
 
 # Warrior list
 ALL_TYPES = tuple(WARRIOR_LOGIC.keys())
@@ -54,19 +63,19 @@ class Warrior:
         )
         # Set bonus weapon number
         if self.has_weapon_bonus:
-            self.weapon_bonus = 3
+            self.weapon_bonus = Bonus.HIGH_BONUS.value
         elif self.weapon == WEAPONS_BONUS["naked man"]:
-            self.weapon_bonus = 1
+            self.weapon_bonus = Bonus.LOW_BONUS.value
         else:
-            self.weapon_bonus = 2
+            self.weapon_bonus = Bonus.MEDIUM_BONUS.value
 
         # Set bonus armor number
         if self.has_armor_bonus:
-            self.armor_bonus = 3
+            self.armor_bonus = Bonus.HIGH_BONUS.value
         elif self.armor == ARMOR_BONUS["naked man"]:
-            self.armor_bonus = 1
+            self.armor_bonus = Bonus.LOW_BONUS.value
         else:
-            self.armor_bonus = 2
+            self.armor_bonus = Bonus.MEDIUM_BONUS.value
 
     def __str__(self) -> str:
 

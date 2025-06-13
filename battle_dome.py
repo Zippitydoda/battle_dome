@@ -1,7 +1,9 @@
-import random
 from character_map import WARRIOR_LOGIC
 from enum import Enum
-from Warrior import Warrior
+import random
+
+# ALL_TYPES is a tuple of all the warrior type options given to the user.
+from Warrior import Warrior, ALL_TYPES
 
 
 # Enum of outcome options
@@ -11,8 +13,6 @@ class Outcome(Enum):
     DRAW = "draw"
 
 
-# List of warrior types
-TYPE_LIST = tuple(WARRIOR_LOGIC.keys())
 # Users play record
 player_record: dict = {"win": 0, "draw": 0, "lose": 0}
 
@@ -24,7 +24,7 @@ def main():
 
         user = Warrior.get_warrior()
         # Create a randomly generated Warrior
-        opponent: Warrior = Warrior(random.choice(TYPE_LIST))
+        opponent: Warrior = Warrior(random.choice(ALL_TYPES))
 
         # Alert the user to what their match up will be
         print(
@@ -32,11 +32,6 @@ def main():
             f"You will be fighting a {opponent.type} equiped with {opponent.weapon} Your armor is {opponent.armor} and total power is {opponent.weapon_bonus + opponent.armor_bonus}.\n"
         )
 
-        # Have the user and opponent battle
-        # outcome = user.base_battle_outcome(opponent)
-        # last_chance_victory(outcome)
-        # Update the players record with win, lose, or draw.
-        # player_record[outcome] += 1
         print(user)
         print(opponent)
         while True:
@@ -113,7 +108,7 @@ def last_chance_victory(outcome):
 def stare_down(user_warrior: Warrior, opponent_warrior: Warrior) -> Outcome:
     # Type advantage
     TYPE_ADDVANTAGE = {
-        warrior_type: details["type_addvatange"]
+        warrior_type: details["type_advantage"]
         for warrior_type, details in WARRIOR_LOGIC.items()
     }
 
@@ -178,8 +173,9 @@ def holy_grail(outcome: Outcome):
 
 
 # Create a recap of current events.
-def narative_generator(outcome: Outcome) -> str:
-    pass
+
+# def narative_generator(outcome: Outcome) -> str:
+# pass
 
 
 if __name__ == "__main__":
