@@ -52,12 +52,27 @@ class Warrior:
             if self.armor == ARMOR_BONUS.get(type)
             else False
         )
+        # Set bonus weapon number
+        if self.has_weapon_bonus:
+            self.weapon_bonus = 3
+        elif self.weapon == "Empty Handed":
+            self.weapon_bonus = 1
+        else:
+            self.weapon_bonus = 2
+
+        # Set bonus armor number
+        if self.has_armor_bonus:
+            self.armor_bonus = 3
+        elif self.armor == "Nudity":
+            self.armor_bonus = 1
+        else:
+            self.armor_bonus = 2
 
     def __str__(self) -> str:
 
         return (
             f"Your warrior is a {self.type} with {self.skill} bonus and is equiped with {self.weapon} and {self.armor}."
-            f"Also weapons bonus is {self.has_weapon_bonus} and armor bonus is {self.has_armor_bonus}."
+            f"Also weapons bonus is {self.weapon_bonus} and armor bonus is {self.armor_bonus}."
         )
 
     @classmethod
@@ -132,10 +147,12 @@ class Warrior:
                 return "draw"
 
 
-"""
-war = Warrior.get_warrior()
-war2 = Warrior.random_warrior()
-print(f"opponent has a weapon bonuse {war2.has_weapon_bonus}")
-print(f"{war.type} vs {war2.type}")
-print(f"Weapons bonus outcome is {war.type} {war.base_battle_outcome(war2)}")
+"""war = Warrior.get_warrior()
+# war2 = Warrior.random_warrior()
+
+print(war)
+war.has_weapon_bonus = False
+war.weapon = "Empty Handed"
+
+
 print(war)"""
