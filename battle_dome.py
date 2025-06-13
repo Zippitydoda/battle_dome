@@ -106,16 +106,35 @@ def last_chance_victory(outcome):
 
 # Compare warriors to see what the type advantage is.
 def stare_down(user_warrior: Warrior, opponent_warrior: Warrior) -> Outcome:
-    # Type advantage
-    TYPE_ADDVANTAGE = {
+    """
+    Compares the type advantage between the user's warrior and the opponent's warrior.
+
+    This function determines the initial outcome of a battle phase based on
+    which warrior type has an inherent advantage over the other.
+
+    Args:
+        user_warrior (Warrior): The user's warrior object.
+        opponent_warrior (Warrior): The opponent's warrior object.
+
+    Returns:
+        Outcome:
+            - Outcome.WIN if the user's warrior has a type advantage.
+            - Outcome.LOSE if the opponent's warrior has a type advantage.
+            - Outcome.DRAW if neither warrior has a type advantage over the other.
+    """
+    # Create a dictionary mapping each warrior type to the types it has an advantage over.
+    # This is derived from the global WARRIOR_LOGIC.
+    TYPE_ADVANTAGE = {
         warrior_type: details["type_advantage"]
         for warrior_type, details in WARRIOR_LOGIC.items()
     }
-
-    if opponent_warrior.type in TYPE_ADDVANTAGE.get(user_warrior.type):
+    # Check if the opponent's warrior type is in the user's warrior's advantage list.
+    if opponent_warrior.type in TYPE_ADVANTAGE.get(user_warrior.type):
         return Outcome.WIN
-    elif user_warrior.type in TYPE_ADDVANTAGE.get(opponent_warrior.type):
+    # Check if the user's warrior type is in the opponent's warrior's advantage list.
+    elif user_warrior.type in TYPE_ADVANTAGE.get(opponent_warrior.type):
         return Outcome.LOSE
+    # If neither has a direct type advantage, it's a draw.
     else:
         return Outcome.DRAW
 
@@ -124,23 +143,41 @@ def stare_down(user_warrior: Warrior, opponent_warrior: Warrior) -> Outcome:
 def battle(
     user_warrior: Warrior, opponent_warrior: Warrior, outcome: Outcome
 ) -> Outcome:
+    """
+    Determines the final outcome of a battle phase based on the initial outcome
+    (from stare_down) and the warriors' weapon and armor bonuses.
 
+    Args:
+        user_warrior (Warrior): The user's warrior object.
+        opponent_warrior (Warrior): The opponent's warrior object.
+        outcome (Outcome): The outcome of the previous phase (e.g., stare_down).
+
+    Returns:
+        Outcome: The final outcome of the battle (WIN, LOSE, or DRAW).
+    """
+
+    # Compare bonuses based on the outcome of the previous phase
     match outcome:
         case Outcome.WIN:
+            # If user won the previous phase, compare user's weapon bonus against opponent's armor bonus.
             if user_warrior.weapon_bonus > opponent_warrior.armor_bonus:
                 return Outcome.WIN
             elif user_warrior.weapon_bonus < opponent_warrior.armor_bonus:
                 return Outcome.LOSE
             else:
                 return Outcome.DRAW
+
         case Outcome.LOSE:
+            # If user lost the previous phase, compare opponent's weapon bonus against user's armor bonus.
             if opponent_warrior.weapon_bonus > user_warrior.armor_bonus:
                 return Outcome.LOSE
             elif opponent_warrior.weapon_bonus < user_warrior.armor_bonus:
                 return Outcome.WIN
             else:
                 return Outcome.DRAW
+
         case Outcome.DRAW:
+            # If the previous phase was a draw, compare the total combined bonuses (weapon + armor) of both warriors.
             if (
                 opponent_warrior.weapon_bonus + opponent_warrior.armor_bonus
                 > user_warrior.weapon_bonus + user_warrior.armor_bonus
@@ -153,11 +190,6 @@ def battle(
                 return Outcome.WIN
             else:
                 return Outcome.DRAW
-
-
-# Check for the initial type advatage warrior weapons vs armor bonus.
-# def phase_3(user_warrior: Warrior, opponent_warrior: Warrior) -> Outcome:
-# pass
 
 
 # Choose a holy grail to see if you are the chosen.
