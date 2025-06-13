@@ -55,7 +55,7 @@ class Warrior:
         # Set bonus weapon number
         if self.has_weapon_bonus:
             self.weapon_bonus = 3
-        elif self.weapon == "Empty Handed":
+        elif self.weapon == WEAPONS_BONUS["naked man"]:
             self.weapon_bonus = 1
         else:
             self.weapon_bonus = 2
@@ -63,7 +63,7 @@ class Warrior:
         # Set bonus armor number
         if self.has_armor_bonus:
             self.armor_bonus = 3
-        elif self.armor == "Nudity":
+        elif self.armor == ARMOR_BONUS["naked man"]:
             self.armor_bonus = 1
         else:
             self.armor_bonus = 2
@@ -79,7 +79,7 @@ class Warrior:
     def get_warrior(cls):
         while True:
             # Prompt the user to type in a valid Warrior Knight, Ranger, or a Wizard looping until a valid input has been selected.
-            warrior = ""
+
             try:
 
                 prompt_message = f"\nChoose from: {', '.join(name.capitalize() for name in ALL_TYPES)}: "
@@ -99,54 +99,8 @@ class Warrior:
     def random_warrior(cls):
         return cls(random.choices(ALL_TYPES)[0])
 
-    def base_battle_outcome(self, opponent: object) -> str:
-        # Current outcome status
-        outcome = ""
-        # Raise a TypeError if the opponent object is not of the Warrior class
-        if not isinstance(opponent, Warrior):
 
-            raise TypeError("Opponent must be a Warrior instance.")
-        if opponent.type in TYPE_ADDVANTAGE.get(self.type):
-            outcome = "win"
-
-        elif self.type in TYPE_ADDVANTAGE.get(opponent.type):
-
-            outcome = "lose"
-        else:
-            outcome = "draw"
-        # Check for overturn weapons bonus scenario
-
-        match outcome:
-            case "win":
-                if not self.has_weapon_bonus and opponent.has_weapon_bonus:
-                    return "lose"
-                else:
-                    return "win"
-
-            case "lose":
-                if not self.has_weapon_bonus:
-                    return "lose"
-                elif self.has_weapon_bonus and not opponent.has_weapon_bonus:
-                    return "win"
-                else:
-                    return "lose"
-
-            case "draw":
-                if not self.has_weapon_bonus and opponent.has_weapon_bonus:
-                    return "lose"
-                elif self.has_weapon_bonus and not opponent.has_weapon_bonus:
-                    return "win"
-                else:
-                    return "draw"
-
-            # Catch all if something other than win, draw or lose is sent through the function
-            case _:
-                raise ValueError(
-                    "Error: Unexpected outcome from victory function. Defaulting to draw."
-                )
-                return "draw"
-
-
+# print(type(WEAPONS_BONUS["naked man"]))
 """war = Warrior.get_warrior()
 # war2 = Warrior.random_warrior()
 

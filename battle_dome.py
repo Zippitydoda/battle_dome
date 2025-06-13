@@ -6,9 +6,9 @@ from Warrior import Warrior
 
 # Enum of outcome options
 class Outcome(Enum):
-    WIN = 1
-    LOSE = 2
-    DRAW = 3
+    WIN = "win"
+    LOSE = "lose"
+    DRAW = "draw"
 
 
 # List of warrior types
@@ -22,23 +22,7 @@ def main():
     play_again: bool = True
     while play_again:  # Outer loop for playing multiple rounds
 
-        while True:
-            # Prompt the user to type in a valid Warrior Knight, Ranger, or a Wizard looping until a valid input has been selected.
-            try:
-
-                prompt_message: str = (
-                    f"\nChoose from: {', '.join(name.capitalize() for name in TYPE_LIST)}: "
-                )
-                Warrior_type: str = input(prompt_message)
-
-                if Warrior_type.strip().lower() in TYPE_LIST:
-                    user: Warrior = Warrior(Warrior_type.strip().lower())
-                    break
-                else:
-                    raise ValueError
-            except ValueError:
-                print("\nPlease choose a valid Warrior")
-
+        user = Warrior.get_warrior()
         # Create a randomly generated Warrior
         opponent: Warrior = Warrior(random.choice(TYPE_LIST))
 
@@ -53,17 +37,21 @@ def main():
         # last_chance_victory(outcome)
         # Update the players record with win, lose, or draw.
         # player_record[outcome] += 1
-        stare_down_outcome = stare_down(user, opponent)
-        battle_outcome = battle(user, opponent, stare_down_outcome)
+        print(user)
+        print(opponent)
+        while True:
+            stare_down_outcome = stare_down(user, opponent)
+            print(stare_down_outcome)
+            battle_outcome = battle(user, opponent, stare_down_outcome)
+            print(battle_outcome)
 
-        if battle_outcome == Outcome.LOSE:
-            holy_grail(battle_outcome)
-        else:
-            battle(user, opponent, battle_outcome)
+            if battle_outcome == Outcome.LOSE or Outcome.DRAW:
+                holy_grail(battle_outcome)
+                break
+            else:
+                battle(user, opponent, battle_outcome)
 
-        print(stare_down_outcome)
-        print(battle_outcome)
-
+        player_record[battle_outcome.value] += 1
         print(
             f"\nYour record is Wins: {player_record['win']} Draws: {player_record['draw']} Losses: {player_record['lose']}"
         )
@@ -141,16 +129,6 @@ def stare_down(user_warrior: Warrior, opponent_warrior: Warrior) -> Outcome:
 def battle(
     user_warrior: Warrior, opponent_warrior: Warrior, outcome: Outcome
 ) -> Outcome:
-    # dict of Weapons bonuses for respective warrior types
-    WEAPONS_BONUS = {
-        warrior_type: details["weapon_bonus"]
-        for warrior_type, details in WARRIOR_LOGIC.items()
-    }
-    # dict of Armor bonuses for respective warrior types
-    ARMOR_BONUS = {
-        warrior_type: details["armor_bonus"]
-        for warrior_type, details in WARRIOR_LOGIC.items()
-    }
 
     match outcome:
         case Outcome.WIN:
@@ -188,11 +166,18 @@ def battle(
 
 
 # Choose a holy grail to see if you are the chosen.
-def holy_grail(outcome: Outcome) -> Outcome:
-    pass
+def holy_grail(outcome: Outcome):
+    match outcome:
+        case Outcome.LOSE:
+            print("user lose")
+        case Outcome.WIN:
+            print("user win")
+        case Outcome.DRAW:
+            print("draw")
+    return
 
 
-# Create a recapn of current events.
+# Create a recap of current events.
 def narative_generator(outcome: Outcome) -> str:
     pass
 
