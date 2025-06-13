@@ -1,4 +1,4 @@
-# Type addvantages for warriors
+# Type advantages for warriors
 WARRIOR_LOGIC = {
     "knight": {
         "type_advantage": ("bard", "ranger"),

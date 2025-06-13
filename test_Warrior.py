@@ -4,6 +4,7 @@
 
 import pytest
 from Warrior import Warrior
+from battle_dome import stare_down, battle
 
 
 # Knight
