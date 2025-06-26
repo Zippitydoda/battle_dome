@@ -1,212 +1,329 @@
-# --- Test Cases for Warrior.base_battle_outcome ---
-
-# Fixtures for common Warrior types with and without bonuses
-
+# test_warrior.py
 import pytest
-from Warrior import Warrior
-
-
-# Knight
-@pytest.fixture
-def knight_no_bonus():
-    war = Warrior("knight")
-    war.weapon = "bow"
-    war.has_weapon_bonus = False
-    return war
-
-
-@pytest.fixture
-def knight_with_bonus():
-    war = Warrior("knight")
-    war.weapon = "sword"
-    war.has_weapon_bonus = True
-    return war
-
-
-# Ranger
-@pytest.fixture
-def ranger_no_bonus():
-    war = Warrior("ranger")
-    war.weapon = "magic wand"
-    war.has_weapon_bonus = False
-    return war
+from Warrior import (
+    Warrior,
+    Outcome,
+    Bonus,
+    WEAPONS_BONUS,
+    ARMOR_BONUS,
+    ALL_WEAPONS,
+    ALL_ARMORS,
+)
+from character_map import WARRIOR_LOGIC
 
 
 @pytest.fixture
-def ranger_with_bonus():
-    war = Warrior("ranger")
-    war.weapon = "bow"
-    war.has_weapon_bonus = True
-    return war
+def create_test_warrior():
+    """
+    A factory fixture to create Warrior instances for testing.
+    It allows specifying the warrior type and influencing the
+    internal _weapon_bonus and _armor_bonus for deterministic battle tests
+    by setting _has_weapon_bonus and _has_armor_bonus directly, and ensuring
+    the _weapon and _armor attributes align for the property calculations.
+    """
+
+    def _create_warrior(
+        warrior_type: str,
+        has_weapon_bonus: bool | None = None,
+        has_armor_bonus: bool | None = None,
+    ) -> Warrior:
+        warrior = Warrior(warrior_type)
+
+        # Control _has_weapon_bonus and _has_armor_bonus flags
+        # These flags are directly used by the weapon_bonus and armor_bonus properties.
+        if has_weapon_bonus is not None:
+            warrior._has_weapon_bonus = has_weapon_bonus
+            if has_weapon_bonus:
+                # Set weapon to the type's bonus weapon to ensure HIGH_BONUS
+                warrior._weapon = WEAPONS_BONUS.get(warrior_type)
+            else:
+                # Set weapon to something that is NOT the type's bonus weapon
+                # and NOT the "naked man" weapon to ensure MEDIUM_BONUS.
+                # If we want LOW_BONUS specifically, we'd need another parameter to force "naked man" weapon.
+                non_bonus_weapons = [
+                    w
+                    for w in ALL_WEAPONS
+                    if w != WEAPONS_BONUS.get(warrior_type)
+                    and w != WEAPONS_BONUS["naked man"]
+                ]
+                if non_bonus_weapons:
+                    # Pick the first available non-bonus and non-naked man weapon
+                    warrior._weapon = non_bonus_weapons[0]
+                else:
+                    # Fallback if no suitable non-bonus weapon is found (unlikely with current setup)
+                    warrior._weapon = "some_other_weapon"
+
+        if has_armor_bonus is not None:
+            warrior._has_armor_bonus = has_armor_bonus
+            if has_armor_bonus:
+                # Set armor to the type's bonus armor to ensure HIGH_BONUS
+                warrior._armor = ARMOR_BONUS.get(warrior_type)
+            else:
+                # Set armor to something that is NOT the type's bonus armor
+                # and NOT the "naked man" armor to ensure MEDIUM_BONUS.
+                # If we want LOW_BONUS specifically, we'd need another parameter to force "Nudity" armor.
+                non_bonus_armors = [
+                    a
+                    for a in ALL_ARMORS
+                    if a != ARMOR_BONUS.get(warrior_type)
+                    and a != ARMOR_BONUS["naked man"]
+                ]
+                if non_bonus_armors:
+                    # Pick the first available non-bonus and non-naked man armor
+                    warrior._armor = non_bonus_armors[0]
+                else:
+                    # Fallback if no suitable non-bonus armor is found
+                    warrior._armor = "some_other_armor"
+
+        # The _weapon_bonus and _armor_bonus attributes are re-calculated by their properties
+        # when accessed. To ensure the battle function uses the intended values based on
+        # the setup above, we can assert on the property directly within the test.
+        # This part below is for internal consistency but the main control is via _has_bonus flags.
+        warrior._weapon_bonus = warrior.weapon_bonus  # This calls the property getter
+        warrior._armor_bonus = warrior.armor_bonus  # This calls the property getter
+
+        return warrior
+
+    return _create_warrior
 
 
-# Wizard
-@pytest.fixture
-def wizard_no_bonus():
-    war = Warrior("wizard")
-    war.weapon = "sword"
-    war.has_weapon_bonus = False
-    return war
+# --- Test cases for stare_down function ---
 
 
-@pytest.fixture
-def wizard_with_bonus():
-    war = Warrior("wizard")
-    war.weapon = "magic wand"
-    war.has_weapon_bonus = True
-    return war
+def test_stare_down_user_wins(create_test_warrior):
+    """
+    Tests stare_down when the user's warrior has a type advantage over the opponent.
+    Example: Knight has advantage over Bard.
+    """
+    knight = create_test_warrior("knight")
+    bard = create_test_warrior("bard")
+    expected_outcome = Outcome.WIN
+    assert knight.stare_down(bard) == expected_outcome
 
 
-# Bard
-@pytest.fixture
-def bard_no_bonus():
-    war = Warrior("bard")
-    war.weapon = "sword"
-    war.has_weapon_bonus = False
-    return war
+def test_stare_down_opponent_wins(create_test_warrior):
+    """
+    Tests stare_down when the opponent's warrior has a type advantage over the user.
+    Example: Bard loses to Knight (because Knight has advantage over Bard).
+    """
+    bard = create_test_warrior("bard")
+    knight = create_test_warrior("knight")
+    expected_outcome = Outcome.LOSE
+    assert bard.stare_down(knight) == expected_outcome
 
 
-@pytest.fixture
-def bard_with_bonus():
-    war = Warrior("bard")
-    war.weapon = "lute"
-    war.has_weapon_bonus = True
-    return war
+def test_stare_down_draw(create_test_warrior):
+    """
+    Tests stare_down when neither warrior has a type advantage over the other.
+    Example: Knight vs Rogue (no direct advantage for either).
+    """
+    knight = create_test_warrior("knight")
+    rogue = create_test_warrior("rogue")
+    expected_outcome = Outcome.DRAW
+    assert knight.stare_down(rogue) == expected_outcome
 
 
-# Rogue
-@pytest.fixture
-def rogue_no_bonus():
-    war = Warrior("rogue")
-    war.weapon = "sword"
-    war.has_weapon_bonus = False
-    return war
+# --- Test cases for battle function ---
+
+# Scenario 1: Initial outcome from stare_down is WIN (user has type advantage)
 
 
-@pytest.fixture
-def rogue_with_bonus():
-    war = Warrior("rogue")
-    war.weapon = "dagger"
-    war.has_weapon_bonus = True
-    return war
+def test_battle_initial_win_user_weapon_stronger_than_opponent_armor(
+    create_test_warrior,
+):
+    """
+    Tests battle when initial_outcome is WIN, and user's weapon bonus
+    is higher than opponent's armor bonus, leading to a user WIN.
+    User: HIGH_BONUS weapon. Opponent: LOW_BONUS armor.
+    """
+    user_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=True
+    )  # Knight with bonus weapon -> HIGH_BONUS
+    # To get LOW_BONUS for opponent armor, we need to ensure their armor is "Nudity"
+    # For a deterministic LOW_BONUS, we need to directly set the armor to "Nudity"
+    # and set has_armor_bonus=False (as it's not their specific bonus armor).
+    opponent_warrior = create_test_warrior("bard", has_armor_bonus=False)
+    opponent_warrior._armor = ARMOR_BONUS[
+        "naked man"
+    ]  # Force naked man armor for LOW_BONUS
+    opponent_warrior._armor_bonus = (
+        opponent_warrior.armor_bonus
+    )  # Recalculate property's internal value
+
+    initial_outcome = Outcome.WIN
+    expected_outcome = Outcome.WIN
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-# Psychic
-@pytest.fixture
-def psychic_no_bonus():
-    war = Warrior("psychic")
-    war.weapon = "sword"
-    war.has_weapon_bonus = False
-    return war
+def test_battle_initial_win_user_weapon_weaker_than_opponent_armor(create_test_warrior):
+    """
+    Tests battle when initial_outcome is WIN, but user's weapon bonus
+    is lower than opponent's armor bonus, leading to a user LOSE.
+    User: MEDIUM_BONUS weapon. Opponent: HIGH_BONUS armor.
+    """
+    user_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=False
+    )  # Knight without bonus weapon -> MEDIUM_BONUS
+    opponent_warrior = create_test_warrior(
+        "bard", has_armor_bonus=True
+    )  # Bard with bonus armor -> HIGH_BONUS
+
+    initial_outcome = Outcome.WIN
+    expected_outcome = Outcome.LOSE
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-@pytest.fixture
-def psychic_with_bonus():
-    war = Warrior("psychic")
-    war.weapon = "crystal ball"
-    war.has_weapon_bonus = True
-    return war
+def test_battle_initial_win_user_weapon_equal_to_opponent_armor(create_test_warrior):
+    """
+    Tests battle when initial_outcome is WIN, and user's weapon bonus
+    is equal to opponent's armor bonus, leading to a user LOSE (as per current logic).
+    User: MEDIUM_BONUS weapon. Opponent: MEDIUM_BONUS armor.
+    """
+    user_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=False
+    )  # MEDIUM_BONUS weapon
+    opponent_warrior = create_test_warrior(
+        "bard", has_armor_bonus=False
+    )  # MEDIUM_BONUS armor
+
+    initial_outcome = Outcome.WIN
+    expected_outcome = Outcome.LOSE
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-'''# temp test
-def test_basic_type_win1(knight_no_bonus, bard_no_bonus):
-    # Knight (self) vs Bard (opponent) -> Knight wins
-    assert knight_no_bonus.base_battle_outcome(bard_no_bonus) == "win"
-
-def test_basic_type_lose(knight_no_bonus, bard_no_bonus):
-    # Knight (self) vs Bard (opponent) -> Knight wins
-    assert knight_no_bonus.base_battle_outcome(bard_no_bonus) == "win"'''
+# Scenario 2: Initial outcome from stare_down is LOSE (opponent has type advantage)
 
 
-# Test cases for basic type advantages (no weapon bonuses involved initially)
-def test_basic_type_win(knight_no_bonus, ranger_no_bonus, bard_no_bonus):
-    # Knight (self) vs Ranger (opponent) -> Knight wins
-    assert knight_no_bonus.base_battle_outcome(ranger_no_bonus) == "win"
-    assert knight_no_bonus.base_battle_outcome(bard_no_bonus) == "win"
+def test_battle_initial_lose_opponent_weapon_weaker_than_user_armor(
+    create_test_warrior,
+):
+    """
+    Tests battle when initial_outcome is LOSE, but opponent's weapon bonus
+    is lower than user's armor bonus, leading to a user WIN.
+    User: HIGH_BONUS armor. Opponent: LOW_BONUS weapon.
+    """
+    user_warrior = create_test_warrior(
+        "bard", has_armor_bonus=True
+    )  # Bard with bonus armor -> HIGH_BONUS
+    # Force "Empty Handed" weapon for opponent for LOW_BONUS
+    opponent_warrior = create_test_warrior("knight", has_weapon_bonus=False)
+    opponent_warrior._weapon = WEAPONS_BONUS[
+        "naked man"
+    ]  # Force naked man weapon for LOW_BONUS
+    opponent_warrior._weapon_bonus = (
+        opponent_warrior.weapon_bonus
+    )  # Recalculate property's internal value
+
+    initial_outcome = Outcome.LOSE
+    expected_outcome = Outcome.WIN
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-def test_basic_type_lose(knight_no_bonus, wizard_no_bonus, psychic_no_bonus):
-    # Knight (self) vs Wizard (opponent) -> Knight loses
-    assert knight_no_bonus.base_battle_outcome(wizard_no_bonus) == "lose"
-    assert knight_no_bonus.base_battle_outcome(psychic_no_bonus) == "lose"
+def test_battle_initial_lose_opponent_weapon_stronger_than_user_armor(
+    create_test_warrior,
+):
+    """
+    Tests battle when initial_outcome is LOSE, and opponent's weapon bonus
+    is higher than user's armor bonus, leading to a user LOSE.
+    User: MEDIUM_BONUS armor. Opponent: HIGH_BONUS weapon.
+    """
+    user_warrior = create_test_warrior(
+        "bard", has_armor_bonus=False
+    )  # Bard without bonus armor -> MEDIUM_BONUS
+    opponent_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=True
+    )  # Knight with bonus weapon -> HIGH_BONUS
+
+    initial_outcome = Outcome.LOSE
+    expected_outcome = Outcome.LOSE
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-def test_basic_type_draw(knight_no_bonus):
-    # Knight (self) vs Knight (opponent) -> Draw
-    assert knight_no_bonus.base_battle_outcome(knight_no_bonus) == "draw"
+def test_battle_initial_lose_opponent_weapon_equal_to_user_armor(create_test_warrior):
+    """
+    Tests battle when initial_outcome is LOSE, and opponent's weapon bonus
+    is equal to user's armor bonus, leading to a user WIN (as per current logic).
+    User: MEDIUM_BONUS armor. Opponent: MEDIUM_BONUS weapon.
+    """
+    user_warrior = create_test_warrior(
+        "bard", has_armor_bonus=False
+    )  # MEDIUM_BONUS armor
+    opponent_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=False
+    )  # MEDIUM_BONUS weapon
+
+    initial_outcome = Outcome.LOSE
+    expected_outcome = Outcome.WIN
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-# Test cases for weapon bonus effects
-def test_self_bonus_overcomes_lose(knight_with_bonus, wizard_no_bonus):
-    # Knight (self, bonus) vs Wizard (opponent, no bonus)
-    # Base: Knight loses to Wizard. With self bonus, Knight wins.
-    assert knight_with_bonus.base_battle_outcome(wizard_no_bonus) == "win"
+# Scenario 3: Initial outcome from stare_down is DRAW
 
 
-def test_self_bonus_overcomes_draw(knight_with_bonus, knight_no_bonus):
-    # Knight (self, bonus) vs Knight (opponent, no bonus)
-    # Base: Draw. With self bonus, Knight wins.
-    assert knight_with_bonus.base_battle_outcome(knight_no_bonus) == "win"
+def test_battle_initial_draw_equal_bonuses(create_test_warrior):
+    """
+    Tests battle when initial_outcome is DRAW, and both warriors have
+    equal weapon and armor bonuses, leading to a DRAW.
+    User: MEDIUM_BONUS weapon. Opponent: MEDIUM_BONUS armor.
+    """
+    user_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=False
+    )  # MEDIUM_BONUS weapon
+    opponent_warrior = create_test_warrior(
+        "rogue", has_armor_bonus=False
+    )  # MEDIUM_BONUS armor
+
+    initial_outcome = Outcome.DRAW
+    expected_outcome = Outcome.DRAW
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-def test_opponent_bonus_overcomes_win(knight_no_bonus, ranger_with_bonus):
-    # Knight (self, no bonus) vs Ranger (opponent, bonus)
-    # Base: Knight wins against Ranger. With opponent bonus, Knight loses.
-    assert knight_no_bonus.base_battle_outcome(ranger_with_bonus) == "lose"
+def test_battle_initial_draw_user_weapon_stronger_than_opponent_armor(
+    create_test_warrior,
+):
+    """
+    Tests battle when initial_outcome is DRAW, and user's weapon bonus
+    is higher than opponent's armor bonus, leading to a user WIN.
+    User: HIGH_BONUS weapon. Opponent: LOW_BONUS armor.
+    """
+    user_warrior = create_test_warrior(
+        "knight", has_weapon_bonus=True
+    )  # HIGH_BONUS weapon
+    # Force "Nudity" armor for opponent for LOW_BONUS
+    opponent_warrior = create_test_warrior("rogue", has_armor_bonus=False)
+    opponent_warrior._armor = ARMOR_BONUS[
+        "naked man"
+    ]  # Force naked man armor for LOW_BONUS
+    opponent_warrior._armor_bonus = (
+        opponent_warrior.armor_bonus
+    )  # Recalculate property's internal value
+
+    initial_outcome = Outcome.DRAW
+    expected_outcome = Outcome.WIN
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
 
 
-def test_opponent_bonus_overcomes_draw(knight_no_bonus, knight_with_bonus):
-    # Knight (self, no bonus) vs Knight (opponent, bonus)
-    # Base: Draw. With opponent bonus, Knight loses.
-    assert knight_no_bonus.base_battle_outcome(knight_with_bonus) == "lose"
+def test_battle_initial_draw_user_weapon_weaker_than_opponent_armor(
+    create_test_warrior,
+):
+    """
+    Tests battle when initial_outcome is DRAW, and user's weapon bonus
+    is lower than opponent's armor bonus, leading to a user LOSE.
+    User: LOW_BONUS weapon. Opponent: HIGH_BONUS armor.
+    """
+    # Force "Empty Handed" weapon for user for LOW_BONUS
+    user_warrior = create_test_warrior("knight", has_weapon_bonus=False)
+    user_warrior._weapon = WEAPONS_BONUS[
+        "naked man"
+    ]  # Force naked man weapon for LOW_BONUS
+    user_warrior._weapon_bonus = (
+        user_warrior.weapon_bonus
+    )  # Recalculate property's internal value
 
+    opponent_warrior = create_test_warrior(
+        "rogue", has_armor_bonus=True
+    )  # HIGH_BONUS armor
 
-def test_both_have_bonus_win(knight_with_bonus, ranger_with_bonus):
-    # Knight (self, bonus) vs Ranger (opponent, bonus)
-    # Base: Knight wins. Both have bonus, so base outcome stands.
-    assert knight_with_bonus.base_battle_outcome(ranger_with_bonus) == "win"
-
-
-def test_both_have_bonus_lose(knight_with_bonus, wizard_with_bonus):
-    # Knight (self, bonus) vs Wizard (opponent, bonus)
-    # Base: Knight loses. Both have bonus, so base outcome stands.
-    assert knight_with_bonus.base_battle_outcome(wizard_with_bonus) == "lose"
-
-
-def test_both_have_bonus_draw(knight_with_bonus):
-    # Knight (self, bonus) vs Knight (opponent, bonus)
-    # Base: Draw. Both have bonus, so base outcome stands.
-    opponent_knight = Warrior("knight")
-    opponent_knight.weapon = "sword"
-    opponent_knight.has_weapon_bonus = True
-
-    assert knight_with_bonus.base_battle_outcome(opponent_knight) == "draw"
-
-
-def test_no_bonuses_win(knight_no_bonus, ranger_no_bonus):
-    # Knight (self, no bonus) vs Ranger (opponent, no bonus)
-    # Base: Knight wins. No bonuses, so base outcome stands.
-    assert knight_no_bonus.base_battle_outcome(ranger_no_bonus) == "win"
-
-
-def test_no_bonuses_lose(knight_no_bonus, wizard_no_bonus):
-    # Knight (self, no bonus) vs Wizard (opponent, no bonus)
-    # Base: Knight loses. No bonuses, so base outcome stands.
-    assert knight_no_bonus.base_battle_outcome(wizard_no_bonus) == "lose"
-
-
-def test_no_bonuses_draw(knight_no_bonus):
-    # Knight (self, no bonus) vs Knight (opponent, no bonus)
-    # Base: Draw. No bonuses, so base outcome stands.
-    assert knight_no_bonus.base_battle_outcome(knight_no_bonus) == "draw"
-
-
-# Test case for TypeError
-def test_base_battle_outcome_type_error(knight_no_bonus):
-    with pytest.raises(TypeError, match="Opponent must be a Warrior instance."):
-        knight_no_bonus.base_battle_outcome("not a warrior")
-
-
-def test_base_battle_outcome_type_error_with_number(knight_no_bonus):
-    with pytest.raises(TypeError, match="Opponent must be a Warrior instance."):
-        knight_no_bonus.base_battle_outcome(123)
+    initial_outcome = Outcome.DRAW
+    expected_outcome = Outcome.LOSE
+    assert user_warrior.battle(opponent_warrior, initial_outcome) == expected_outcome
