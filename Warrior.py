@@ -70,6 +70,10 @@ class Warrior:
         self._weapon_bonus = self.weapon_bonus
         self._armor_bonus = self.armor_bonus
 
+    def __repr__(self) -> str:
+        war = f"Warrior(\n Type={self.type},\n Skill={self.skill},\n Weapon type={self.weapon},\n Has Weapon bonus={self.has_weapon_bonus},\n Weapon bonuse={self.weapon_bonus},\n Armor type={self.armor},\n Has Armor bonus={self.has_armor_bonus},\n Armor bonus={self.armor_bonus})"
+        return war
+
     def __str__(self) -> str:
 
         return (
@@ -212,11 +216,11 @@ class Warrior:
                     return Outcome.LOSE
 
 
-war = Warrior.random_warrior()
+war = Warrior.get_warrior()
 war2 = Warrior.random_warrior()
 
-print(war)
-print(war2)
+print(repr(war))
+# print(war2)
 
-print(war.stare_down(war2))
-print(war.battle(war2, war.stare_down(war2)))
+# print(war.stare_down(war2))
+# print(war.battle(war2, war.stare_down(war2)))
