@@ -2,7 +2,7 @@ from character_map import WARRIOR_LOGIC
 from enum import Enum
 import random
 
-
+""" These attribute dicts are what the whole logic system is based off of """
 # Type addvantages for warriors
 TYPE_ADVANTAGE = {
     warrior_type: details["type_advantage"]
@@ -71,13 +71,13 @@ class Warrior:
         self._armor_bonus = self.armor_bonus
 
     def __repr__(self) -> str:
-        war = f"Warrior(\n Type={self.type},\n Skill={self.skill},\n Weapon type={self.weapon},\n Has Weapon bonus={self.has_weapon_bonus},\n Weapon bonuse={self.weapon_bonus},\n Armor type={self.armor},\n Has Armor bonus={self.has_armor_bonus},\n Armor bonus={self.armor_bonus})"
+        war = f"Warrior(\n Type={self.type},\n Skill={self.skill},\n Weapon type={self.weapon},\n Has Weapon bonus={self.has_weapon_bonus},\n Weapon bonuse={self.weapon_bonus},\n Armor type={self.armor},\n Has Armor bonus={self.has_armor_bonus},\n Armor bonus={self.armor_bonus}"
         return war
 
     def __str__(self) -> str:
 
         return (
-            f"Your warrior is a {self.type} with {self.skill} bonus and is equiped with {self.weapon} and {self.armor}."
+            f"Your warrior is a {self.type} with {self.skill} bonus and is equiped with a {self.weapon} and {self.armor}."
             f"Also weapons bonus is {self.weapon_bonus} and armor bonus is {self.armor_bonus}."
         )
 
@@ -178,6 +178,59 @@ class Warrior:
         else:
             return Outcome.DRAW
 
+    def attack(self, opponent_warrior: "Warrior") -> Outcome:
+        """
+        Simulates an attack between this warrior and an opponent.
+
+        The outcome of the attack is determined by comparing the attacker's
+        weapon bonus to the opponent's armor bonus.
+
+        Args:
+            opponent_warrior: The Warrior instance that is being attacked.
+
+        Returns:
+            An Outcome enum value indicating the result of the attack:
+            - Outcome.WIN: If the attacker's weapon bonus is greater.
+            - Outcome.LOSE: If the opponent's armor bonus is greater.
+            - Outcome.DRAW: If their bonuses are equal.
+        """
+        # If users weapon bonus is greater than opponents armor bonus.
+        if self.weapon_bonus > opponent_warrior.armor_bonus:
+            return Outcome.WIN
+        # If users weeapon bonus in not greater than opponent armor bonus.
+        elif self.weapon_bonus < opponent_warrior.armor_bonus:
+            return Outcome.LOSE
+        else:
+            return Outcome.DRAW
+
+    def clash(self, opponent_warrior: "Warrior") -> Outcome:
+        """Simulates a clash between this warrior and an opponent.
+
+        The outcome is determined by comparing the sum of each warrior's
+        armor and weapon bonuses.
+
+        Args:
+            opponent_warrior: The Warrior instance to clash with.
+
+        Returns:
+            An Outcome enum value indicating the result of the clash:
+            - Outcome.WIN: If the current warrior's total bonus is greater.
+            - Outcome.LOSE: If the opponent's total bonus is greater.
+            - Outcome.DRAW: If their total bonuses are equal.
+        """
+        # Add the armor and weapon bonuses together then compare the values
+        self_point_bonus = self.armor_bonus + self.weapon_bonus
+        opponent_warrior_point_bonus = (
+            opponent_warrior.armor_bonus + opponent_warrior.weapon_bonus
+        )
+
+        if self_point_bonus > opponent_warrior_point_bonus:
+            return Outcome.WIN
+        elif self_point_bonus < opponent_warrior_point_bonus:
+            return Outcome.LOSE
+        else:
+            return Outcome.DRAW
+
     def battle(self, opponent_warrior: "Warrior", outcome: Outcome) -> Outcome:
         """
         Determines the final outcome of a battle phase based on the initial outcome
@@ -215,12 +268,55 @@ class Warrior:
                 else:
                     return Outcome.LOSE
 
+    def full_battle(self, opponent_warrior: "Warrior") -> Outcome:
+        phase_victor = None
+        # Phase 1: Pick whether user or opponent gets to attack first based off of base type advantage
+        phase_1_outcome = self.stare_down(opponent_warrior)
+        # Phase 2: winner of phase 1 gets to attack the opposing player
+        match phase_1_outcome:
+            case Outcome.WIN:
+                # User attacks opponent
+                phase_victor = self
+                phase_2_outcome = self.attack(opponent_warrior)
+            case Outcome.LOSE:
+                # Opponent attacks user
+                phase_victor = opponent_warrior
+                phase_2_outcome = opponent_warrior.attack(self)
+            case Outcome.DRAW:
+                # User clashes with opponent
+                phase_2_outcome = self.clash(opponent_warrior)
+                if phase_2_outcome == Outcome.WIN:
+                    return Outcome.WIN
+                elif phase_2_outcome == Outcome.LOSE:
+                    return Outcome.LOSE
+                else:
+                    return Outcome.DRAW
+        # Phase 3
+        match phase_2_outcome:
+            # If user wins the previous phase they win the battle
+            case Outcome.WIN:
+                if phase_victor == self:
+                    return Outcome.WIN
+                else:
+                    return Outcome.LOSE
+            # If user loses the previous phase they are attacked by their opponent
+            case Outcome.LOSE:
+                phase_victor = opponent_warrior
+                phase_3_outcome = opponent_warrior.attack(self)
+
+            case Outcome.DRAW:
+                # TODO
+                pass
+
 
 war = Warrior.get_warrior()
 war2 = Warrior.random_warrior()
 
-print(repr(war))
-# print(war2)
 
+print(repr(war))
+print(repr(war2))
+print(war.clash(war2))
+print(war.attack(war2))
+print(war2.attack(war))
 # print(war.stare_down(war2))
 # print(war.battle(war2, war.stare_down(war2)))

@@ -11,37 +11,44 @@ class char_type(Enum):
 
 
 # Type advantages for warriors
+
 WARRIOR_LOGIC = {
+    # Knight
     char_type.CHAR_1.value: {
         "type_advantage": (char_type.CHAR_4.value, char_type.CHAR_2.value),
         "weapon_bonus": "sword",
         "armor_bonus": "Suit of Armor",
         "skill_bonus": "Hand to hand",
     },
+    # Ranger
     char_type.CHAR_2.value: {
         "type_advantage": (char_type.CHAR_5.value, char_type.CHAR_3.value),
         "weapon_bonus": "bow",
         "armor_bonus": "Leather Tunic",
         "skill_bonus": "Long range Combat",
     },
+    # Wizard
     char_type.CHAR_3.value: {
         "type_advantage": (char_type.CHAR_6.value, char_type.CHAR_1.value),
         "weapon_bonus": "magic wand",
         "armor_bonus": "Magic Robes",
         "skill_bonus": "Magic",
     },
+    # Bard
     char_type.CHAR_4.value: {
         "type_advantage": (char_type.CHAR_5.value, char_type.CHAR_2.value),
         "weapon_bonus": "lute",
         "armor_bonus": "Fine Clothes",
         "skill_bonus": "Persuasion",
     },
+    # Rouge
     char_type.CHAR_5.value: {
         "type_advantage": (char_type.CHAR_6.value, char_type.CHAR_3.value),
         "weapon_bonus": "dagger",
         "armor_bonus": "Hooded Cloak",
         "skill_bonus": "Stealth",
     },
+    # Psychic
     char_type.CHAR_6.value: {
         "type_advantage": (char_type.CHAR_4.value, char_type.CHAR_1.value),
         "weapon_bonus": "crystal Ball",
