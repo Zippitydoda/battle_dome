@@ -1,6 +1,7 @@
-from character_map import WARRIOR_LOGIC
 from enum import Enum
 import random
+from character_map import WARRIOR_LOGIC
+
 
 # ALL_TYPES is a tuple of all the warrior type options given to the user.
 from Warrior import Warrior, ALL_TYPES
