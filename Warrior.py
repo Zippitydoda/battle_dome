@@ -2,7 +2,7 @@ from character_map import WARRIOR_LOGIC
 from enum import Enum
 import random
 
-# Type addvantages for warriors
+# Type advantages for warriors
 TYPE_ADVANTAGE = {
     warrior_type: details["type_advantage"]
     for warrior_type, details in WARRIOR_LOGIC.items()
@@ -18,7 +18,7 @@ ARMOR_BONUS = {
     warrior_type: details["armor_bonus"]
     for warrior_type, details in WARRIOR_LOGIC.items()
 }
-# Skill bonus no use fot this yet
+# Skill bonus no use for this yet
 SKILL_BONUS = {
     warrior_type: details["skill_bonus"]
     for warrior_type, details in WARRIOR_LOGIC.items()
@@ -44,23 +44,16 @@ ALL_SKILLS = tuple(details["skill_bonus"] for details in WARRIOR_LOGIC.values())
 
 class Warrior:
 
-    def __init__(self, type) -> None:
-        self.type = type
+    def __init__(self, warrior_type: str) -> None:
+        self.type = warrior_type
         self.weapon = random.choice(ALL_WEAPONS)
         self.armor = random.choice(ALL_ARMORS)
-        self.skill = SKILL_BONUS.get(type)
-        self.has_weapon_bonus = (
-            # If the skill bonus lines up with the appropriate class set value to true
-            True
-            if self.weapon == WEAPONS_BONUS.get(type)
-            else False
-        )
-        self.has_armor_bonus = (
-            # If the armor bonus lines up with the appropriate class set value to true
-            True
-            if self.armor == ARMOR_BONUS.get(type)
-            else False
-        )
+        self.skill = SKILL_BONUS.get(warrior_type)
+        
+        # A direct comparison evaluates to a boolean automatically 
+        self.has_weapon_bonus = self.weapon == WEAPONS_BONUS.get(warrior_type)
+        self.has_armor_bonus = self.armor == ARMOR_BONUS.get(warrior_type)
+
         # Set bonus weapon number
         if self.has_weapon_bonus:
             self.weapon_bonus = Bonus.HIGH_BONUS.value
@@ -78,24 +71,21 @@ class Warrior:
             self.armor_bonus = Bonus.MEDIUM_BONUS.value
 
     def __str__(self) -> str:
-
         return (
-            f"Your warrior is a {self.type} with {self.skill} bonus and is equiped with {self.weapon} and {self.armor}."
-            f"Also weapons bonus is {self.weapon_bonus} and armor bonus is {self.armor_bonus}."
+            f"Your warrior is a {self.type} with {self.skill} bonus and is equipped with {self.weapon} and {self.armor}. "
+            f"Also, weapon bonus is {self.weapon_bonus} and armor bonus is {self.armor_bonus}."
         )
 
     @classmethod
     def get_warrior(cls):
         while True:
             # Prompt the user to type in a valid Warrior Knight, Ranger, or a Wizard looping until a valid input has been selected.
-
             try:
-
                 prompt_message = f"\nChoose from: {', '.join(name.capitalize() for name in ALL_TYPES)}: "
                 warrior = input(prompt_message).strip().lower()
 
                 if warrior in ALL_TYPES:
-                    # If warrior enterd is in the list then break the loop and instantiate the object
+                    # If warrior entered is in the list then break the loop and instantiate the object
                     break
                 else:
                     raise ValueError
@@ -107,6 +97,3 @@ class Warrior:
     # Create a random warrior
     def random_warrior(cls):
         return cls(random.choices(ALL_TYPES)[0])
-
-
-
