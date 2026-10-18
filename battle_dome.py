@@ -173,10 +173,10 @@ def stare_down(user_warrior: Warrior, opponent_warrior: Warrior) -> Outcome:
         for warrior_type, details in WARRIOR_LOGIC.items()
     }
     # Check if the opponent's warrior type is in the user's warrior's advantage list.
-    if opponent_warrior.type in TYPE_ADVANTAGE.get(user_warrior.type):
+    if opponent_warrior.type in TYPE_ADVANTAGE.get(user_warrior.type, ()):
         return Outcome.WIN
     # Check if the user's warrior type is in the opponent's warrior's advantage list.
-    elif user_warrior.type in TYPE_ADVANTAGE.get(opponent_warrior.type):
+    elif user_warrior.type in TYPE_ADVANTAGE.get(opponent_warrior.type, ()):
         return Outcome.LOSE
     # If neither has a direct type advantage, it's a draw.
     else:
