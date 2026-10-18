@@ -29,8 +29,8 @@ def main():
 
         # Alert the user to what their match up will be
         print(
-            f"\nYour warrior is a {user.type} and is equiped with {user.weapon}. Your armor is {user.armor} and total power is {user.weapon_bonus + user.armor_bonus}\n"
-            f"You will be fighting a {opponent.type} equiped with {opponent.weapon} Your armor is {opponent.armor} and total power is {opponent.weapon_bonus + opponent.armor_bonus}.\n"
+            f"\nYour warrior is a {user.type} and is equipped with {user.weapon}. Your armor is {user.armor} and total power is {user.weapon_bonus + user.armor_bonus}\n"
+            f"You will be fighting a {opponent.type} equipped with {opponent.weapon} Your armor is {opponent.armor} and total power is {opponent.weapon_bonus + opponent.armor_bonus}.\n"
         )
 
         print(user)
