@@ -45,17 +45,8 @@ def main():
 
         # Phase 3: Last Chance Victory (Only if you didn't win outright)
         if battle_outcome in (Outcome.LOSE, Outcome.DRAW):
-            # Pass the Enum name as a string to match your last_chance_victory logic
-            final_chance_str = last_chance_victory(battle_outcome.value)
-            
-            # Convert the string result back to an Enum to update the record properly
-            if final_chance_str == "win":
-                battle_outcome = Outcome.WIN
-            elif final_chance_str == "lose":
-                battle_outcome = Outcome.LOSE
-            else:
-                battle_outcome = Outcome.DRAW
-                
+            # Pass the enum directly, and reassign the enum directly
+            battle_outcome = last_chance_victory(battle_outcome)
             print(f"\nFinal Outcome after the Holy Grail: {battle_outcome.name}")
 
         # Record update (outside of any battle loops)
@@ -80,10 +71,10 @@ def main():
                 print("Please enter only 'y' or 'n'")
 
 
-def last_chance_victory(outcome):
+def last_chance_victory(outcome: Outcome) -> Outcome:
     # Generate a randomly selected number 1-10
     holy_grail = random.randint(1, 10)
-    # Prompt the loser to guess a number
+    
     print(
         r"""
   .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.    .--.
@@ -95,26 +86,66 @@ def last_chance_victory(outcome):
    1       2       3       4       5       6       7       8       9       10
           """
     )
-    match outcome:
-        case "win":
-            opponent_guess = random.randint(0, 11)
-            if opponent_guess == holy_grail:
-                return "lose"
-            else:
-                return "win"
-        case "lose":
-            if input("Pick any number between 0-10: ") == holy_grail:
-                return "win"
-            else:
-                return "lose"
-        # fix this later
-        case "draw":
-            opponent_guess = random.randint(0, 11)
-            user_guess = input("Pick any number between 0-10: ")
+    
+    print("\nThe Holy Grail has chosen a number between 1 and 10!")
 
-            return "draw"
-    # If the loser picks the correct number over turn the loss
-    pass
+    match outcome:
+        case Outcome.WIN:
+            print("Your opponent gets a chance to steal the victory!")
+            # Corrected to match the 1-10 range of the holy_grail
+            opponent_guess = random.randint(1, 10)
+            print(f"Opponent guessed: {opponent_guess}")
+            
+            if opponent_guess == holy_grail:
+                print("The opponent guessed correctly and stole the win!")
+                return Outcome.LOSE
+            else:
+                print(f"The opponent guessed incorrectly (Grail was {holy_grail}). Your victory stands!")
+                return Outcome.WIN
+                
+        case Outcome.LOSE:
+            print("You have one last chance to steal the victory!")
+            while True:
+                try:
+                    user_guess = int(input("Pick a number between 1 and 10: "))
+                    break
+                except ValueError:
+                    print("Please enter a valid number.")
+                    
+            if user_guess == holy_grail:
+                print("You guessed correctly and stole the win!")
+                return Outcome.WIN
+            else:
+                print(f"You guessed incorrectly (Grail was {holy_grail}). You lose!")
+                return Outcome.LOSE
+                
+        case Outcome.DRAW:
+            print("It's a draw! Whoever guesses closest to the Holy Grail wins.")
+            opponent_guess = random.randint(1, 10)
+            
+            while True:
+                try:
+                    user_guess = int(input("Pick a number between 1 and 10: "))
+                    break
+                except ValueError:
+                    print("Please enter a valid number.")
+                    
+            print(f"Opponent guessed: {opponent_guess}")
+            print(f"The Holy Grail number was: {holy_grail}")
+            
+            # Calculate who is closer using absolute difference
+            user_diff = abs(user_guess - holy_grail)
+            opponent_diff = abs(opponent_guess - holy_grail)
+            
+            if user_diff < opponent_diff:
+                print("You were closer! You win!")
+                return Outcome.WIN
+            elif opponent_diff < user_diff:
+                print("The opponent was closer! You lose!")
+                return Outcome.LOSE
+            else:
+                print("You both guessed equally close! It remains a true draw!")
+                return Outcome.DRAW
 
 
 # Compare warriors to see what the type advantage is.
