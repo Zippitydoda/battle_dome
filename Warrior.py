@@ -109,13 +109,4 @@ class Warrior:
         return cls(random.choices(ALL_TYPES)[0])
 
 
-# print(type(WEAPONS_BONUS["naked man"]))
-"""war = Warrior.get_warrior()
-# war2 = Warrior.random_warrior()
 
-print(war)
-war.has_weapon_bonus = False
-war.weapon = "Empty Handed"
-
-
-print(war)"""

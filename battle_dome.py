@@ -35,18 +35,30 @@ def main():
 
         print(user)
         print(opponent)
-        while True:
-            stare_down_outcome = stare_down(user, opponent)
-            print(stare_down_outcome)
-            battle_outcome = battle(user, opponent, stare_down_outcome)
-            print(battle_outcome)
+        # Phase 1: Type Advantage Stare Down
+        stare_down_outcome = stare_down(user, opponent)
+        print(f"\nType Advantage Phase: {stare_down_outcome.name}")
+        
+        # Phase 2: Bonus Battle
+        battle_outcome = battle(user, opponent, stare_down_outcome)
+        print(f"Battle Phase: {battle_outcome.name}")
 
-            if battle_outcome == Outcome.LOSE or Outcome.DRAW:
-                holy_grail(battle_outcome)
-                break
+        # Phase 3: Last Chance Victory (Only if you didn't win outright)
+        if battle_outcome in (Outcome.LOSE, Outcome.DRAW):
+            # Pass the Enum name as a string to match your last_chance_victory logic
+            final_chance_str = last_chance_victory(battle_outcome.value)
+            
+            # Convert the string result back to an Enum to update the record properly
+            if final_chance_str == "win":
+                battle_outcome = Outcome.WIN
+            elif final_chance_str == "lose":
+                battle_outcome = Outcome.LOSE
             else:
-                battle(user, opponent, battle_outcome)
+                battle_outcome = Outcome.DRAW
+                
+            print(f"\nFinal Outcome after the Holy Grail: {battle_outcome.name}")
 
+        # Record update (outside of any battle loops)
         player_record[battle_outcome.value] += 1
         print(
             f"\nYour record is Wins: {player_record['win']} Draws: {player_record['draw']} Losses: {player_record['lose']}"
@@ -192,23 +204,6 @@ def battle(
             else:
                 return Outcome.DRAW
 
-
-# Choose a holy grail to see if you are the chosen.
-def holy_grail(outcome: Outcome):
-    match outcome:
-        case Outcome.LOSE:
-            print("user lose")
-        case Outcome.WIN:
-            print("user win")
-        case Outcome.DRAW:
-            print("draw")
-    return
-
-
-# Create a recap of current events.
-
-# def narative_generator(outcome: Outcome) -> str:
-# pass
 
 
 if __name__ == "__main__":
